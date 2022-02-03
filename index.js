@@ -1,5 +1,12 @@
 const { MongoClient } = require('mongodb')
 const { v4: uuid } = require('uuid')
+const express = require('express')
+const cors = require('cors')
+
+const app = express()
+
+app.use(cors({ origin: '*' }))
+
 // or as an es module:
 // import { MongoClient } from 'mongodb'
 
@@ -8,17 +15,16 @@ const url =
     'mongodb+srv://tauseef:theposappisnice@posappcluster.gtkmy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 const client = new MongoClient(url)
 
-async function main() {
+async function addUser(email, storeName) {
     // Use connect method to connect to the server
     await client.connect()
-    console.log('Connected to server ✅')
     const db = client.db('tsds')
 
     const usersCollection = db.collection('users')
 
     const user = {
         LM_ID: uuid(),
-        LM_E: 'user1@tsds.com',
+        LM_E: email,
         LM_MN: '1234567890',
         LM_P: '$2a$14$pazd4FL/Kb4qzfhqjnRx7.YndWlwTCuAs.vToFTJD3xbkiZKpR.z2',
         LM_PIN: '',
@@ -32,7 +38,7 @@ async function main() {
 
     const storeMaster = {
         SM_ID: uuid(),
-        SM_N: 'User1 Store',
+        SM_N: storeName,
         SM_MN: user.LM_MN,
         SM_GPS: '',
         SM_ML: '',
@@ -64,7 +70,16 @@ async function main() {
     return 'done.'
 }
 
-main()
-    .then(console.log)
-    .catch(console.error)
-    .finally(() => client.close())
+app.get('/', (_, res) => {
+    res.send('hello')
+})
+
+app.post('/create_user', (req, res) => {
+    const body = req.body
+
+    addUser(body.email, body.storeName)
+
+    res.status(200)
+})
+
+app.listen(8081, () => console.log('running'))
