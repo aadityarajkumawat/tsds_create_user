@@ -82,4 +82,4 @@ app.post('/create_user', (req, res) => {
     res.status(200)
 })
 
-app.listen(8081, () => console.log('running'))
+app.listen(8081, '0.0.0.0')
